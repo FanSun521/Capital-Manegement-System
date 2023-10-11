@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <button>发送请求</button>
+  </body>
+  <script>
+    const data = {
+      list: "[1,2]",
+      permission: 2,
+      checkName: "梁嘉辉",
+    };
+    axios.defaults.baseURL = "http://127.0.0.1:9000";
+    const btn = document.querySelector("button");
+    btn.addEventListener("click", () => {
+      axios({
+        method: "post",
+        url: "/api/admin/applyBills",
+        data: data,
+      }).then((res) => {
+        console.log(res);
+      });
+    });
+  </script>
+</html>
