@@ -15,20 +15,46 @@
           <div class="login">
             <h2 class="mainTitle">登录账号</h2>
             <div style="width: 350px; text-align: center">
-              <input type="text" placeholder="Id:学号" />
-              <input type="text" placeholder="Password:密码" />
+              <input v-model="loginId" type="text" placeholder="Id:学号" />
+              <input
+                v-model="loginPassword"
+                type="text"
+                placeholder="Password:密码"
+              />
               <a href="#">忘记密码?</a>
             </div>
-            <button>SIGN IN</button>
+            <button @click="login">SIGN IN</button>
           </div>
           <div class="register">
             <h2 class="mainTitle">创建账号</h2>
             <div style="width: 350px; text-align: center">
-              <input type="text" placeholder="Id:学号" />
-              <input type="text" placeholder="Name:姓名" />
-              <input type="text" placeholder="Password:密码" />
+              <input v-model="registerId" type="text" placeholder="Id:学号" />
+              <input
+                v-model="registerName"
+                type="text"
+                placeholder="Name:姓名"
+              />
+              <input
+                v-model="registerPassword"
+                type="text"
+                placeholder="Password:密码"
+              />
+              <el-select
+                :popper-append-to-body="false"
+                v-model="direction"
+                clearable
+                placeholder="请选择方向"
+              >
+                <el-option
+                  v-for="item in directionOptions"
+                  :key="item.value"
+                  :label="item.value"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
             </div>
-            <button>SIGN UP</button>
+            <button @click="register">SIGN UP</button>
           </div>
         </div>
       </transition>
@@ -37,9 +63,31 @@
 </template>
 
 <script>
+import Cookies from "js-cookie";
 export default {
   name: "Login",
   props: {},
+  data() {
+    return {
+      loginId: "2021005820",
+      loginPassword: "123456",
+      direction: "",
+      directionOptions: [
+        {
+          value: "开发",
+        },
+        {
+          value: "设计",
+        },
+        {
+          value: "秘书处",
+        },
+      ],
+      registerId: "",
+      registerName: "",
+      registerPassword: "",
+    };
+  },
   mounted() {
     this.initAnimations();
   },
@@ -95,6 +143,64 @@ export default {
         }
         changeDom();
       });
+      //先展示登录框
+      // switchBtn.click();
+    },
+    //登录
+    async login() {
+      //非空校验
+      if (!this.loginId || !this.loginPassword) {
+        this.$message({
+          message: "请填写学号或密码!",
+          type: "warning",
+        });
+        return;
+      }
+      //发送请求
+      const res = await this.$http.login({
+        id: this.loginId,
+        password: this.loginPassword,
+      });
+      if (res.code === 200) {
+        //利用cookie存储token
+        Cookies.set("token", res.data.token);
+        //跳转首页
+        this.$router.push("/main");
+        //登录成功消息提示
+        this.$message({
+          message: "登陆成功!",
+          type: "success",
+        });
+      }
+    },
+    async register() {
+      //非空校验
+      if (
+        !this.registerId ||
+        !this.registerName ||
+        !this.registerPassword ||
+        !this.direction
+      ) {
+        this.$message({
+          message: "请填写信息!",
+          type: "warning",
+        });
+        return;
+      }
+      //发送请求
+      const res = await this.$http.register({
+        id: this.registerId,
+        password: this.registerPassword,
+        userName: this.registerName,
+        department: this.direction,
+      });
+      if (res.code === 200) {
+        //注册成功消息提示
+        this.$message({
+          message: "注册成功!",
+          type: "success",
+        });
+      }
     },
   },
 };
@@ -260,5 +366,25 @@ a {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+:deep .el-input__inner {
+  width: 350px;
+  height: 40px;
+  padding-left: 25px;
+  margin: 10px 0;
+  font-size: 13px;
+  letter-spacing: 0.15px;
+  background-color: #ecf0f3;
+  border-radius: 8px;
+  box-shadow: inset 2px 2px 4px #d1d9e6, inset -2px -2px 4px #f9f9f9;
+}
+
+/* 注意::伪元素前面不能有空格 否则不生效 这个小问题卡了30min md */
+:deep .el-input__inner::placeholder {
+  color: #757575;
+}
+:deep .el-input__inner:focus,
+.el-input.is-focus {
+  border: none;
 }
 </style>
