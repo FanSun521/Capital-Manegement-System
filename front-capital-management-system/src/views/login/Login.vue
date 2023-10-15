@@ -165,7 +165,7 @@ export default {
         //利用cookie存储token
         Cookies.set("token", res.data.token);
         //跳转首页
-        this.$router.push("/main");
+        this.$router.push({ name: "main" });
         //登录成功消息提示
         this.$message({
           message: "登陆成功!",

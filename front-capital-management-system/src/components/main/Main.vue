@@ -1,27 +1,31 @@
 <template>
   <div>
-    <h2>Main</h2>
-    <button @click="sendAxios">发送axios请求</button>
+    <el-container>
+      <el-aside width="auto"><Aside></Aside></el-aside>
+      <el-container>
+        <el-header><Header></Header></el-header>
+        <el-main><router-view></router-view></el-main>
+      </el-container>
+    </el-container>
   </div>
 </template>
 
 <script>
-import axios from "axios";
-
+import Aside from "./Aside.vue";
+import Header from "./Header.vue";
 export default {
   name: "Main",
   props: {},
-  methods: {
-    async sendAxios() {
-      console.log(this.$http);
-      const res = await this.$http.login({
-        id: "2021005820",
-        password: "1234567",
-      });
-      console.log(res);
-    },
+  methods: {},
+  components: {
+    Aside,
+    Header,
   },
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.el-header {
+  padding: 0;
+}
+</style>

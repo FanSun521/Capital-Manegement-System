@@ -4,11 +4,16 @@ import router from "./router/index";
 import ElementUI from "element-ui";
 import "element-ui/lib/theme-chalk/index.css";
 import "./api/request";
+import "@/icons";
 //取消默认提示
 Vue.config.productionTip = false;
 
 Vue.use(ElementUI);
 new Vue({
+  beforeCreate() {
+    //绑定全局事件总线
+    Vue.prototype.$bus = new Vue();
+  },
   router,
   render: (h) => h(App),
 }).$mount("#app");
