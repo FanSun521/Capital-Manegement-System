@@ -1,24 +1,30 @@
 <template>
   <el-menu
-    default-active="1"
+    :default-active="activeIndex"
     class="el-menu-vertical-demo"
     :collapse="isCollapse"
+    menu-trigger="hover"
   >
     <a class="title" @click="goHome">
       <SvgIcon icon-class="zijin"></SvgIcon>
       <h3 v-show="!isCollapse">资金管理系统</h3>
     </a>
-    <el-submenu index="1">
-      <template slot="title">
-        <i class="el-icon-location"></i>
-        <span>首页</span>
+    <el-submenu v-for="(firstMenu, firIndex) in menu" :index="'' + firIndex">
+      <template slot="title" class="firstMenu">
+        <SvgIcon :icon-class="firstMenu.icon"></SvgIcon>
+        <span>{{ firstMenu.label }}</span>
       </template>
       <el-menu-item-group>
-        <el-menu-item index="1-1">分析台</el-menu-item>
-        <el-menu-item index="1-2">选项2</el-menu-item>
+        <el-menu-item
+          v-for="(secMenu, secIndex) in firstMenu.children"
+          :index="'' + firIndex + '-' + secIndex"
+          @click="goNav(secMenu.name, firIndex, secIndex)"
+        >
+          <SvgIcon :icon-class="secMenu.icon"></SvgIcon>
+          <span>{{ secMenu.label }}</span>
+        </el-menu-item>
       </el-menu-item-group>
     </el-submenu>
-
   </el-menu>
 </template>
 
@@ -34,6 +40,8 @@ export default {
       activeIndex2: "1",
       //默认是展开
       isCollapse: false,
+      menu: [],
+      activeIndex: "",
     };
   },
   mounted() {
@@ -42,11 +50,22 @@ export default {
       this.isCollapse = !this.isCollapse;
     });
     console.log(menu);
+    //菜单
+    this.menu = menu;
+    //获取菜单索引 避免刷新左侧菜单选中失效
+    const activeIndex = sessionStorage.getItem("activeIndex") ?? "0-0";
+    this.activeIndex = activeIndex;
   },
   methods: {
     //跳转首页
     goHome() {
       this.$router.push({ name: "main" });
+    },
+    //跳转对应导航菜单
+    goNav(name, firIndex, secIndex) {
+      this.$router.push({ name });
+      //利用sessionStorage存储菜单索引
+      sessionStorage.setItem("activeIndex", `${firIndex}-${secIndex}`);
     },
   },
 };
@@ -57,8 +76,22 @@ export default {
   width: 200px;
   min-height: 400px;
 }
+:deep .el-submenu__title {
+  display: flex;
+  align-items: center;
+  svg {
+    width: 20px;
+    margin-right: 5px;
+  }
+}
 .el-menu-vertical-demo {
   height: 100vh;
+  .el-menu-item-group {
+    :deep .is-active {
+      background-color: #d9ecff;
+    }
+  }
+
   .title {
     display: flex;
     justify-content: center;
@@ -68,6 +101,14 @@ export default {
     h3 {
       margin-left: 5px;
     }
+  }
+}
+.el-menu-item {
+  display: flex;
+  align-items: center;
+  svg {
+    width: 20px;
+    margin-right: 5px;
   }
 }
 </style>

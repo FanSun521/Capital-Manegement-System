@@ -164,6 +164,8 @@ export default {
       if (res.code === 200) {
         //利用cookie存储token
         Cookies.set("token", res.data.token);
+        //存储id到本地
+        localStorage.setItem("id", res.data.id);
         //跳转首页
         this.$router.push({ name: "main" });
         //登录成功消息提示

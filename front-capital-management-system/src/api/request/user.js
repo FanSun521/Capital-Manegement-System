@@ -18,7 +18,17 @@ const register = (data) => {
   });
 };
 
+//获取个人信息
+const getInfo = (data) => {
+  return myAxios({
+    method: "post",
+    url: "/user/getInfo",
+    data: data,
+  });
+};
+
 export default {
   login,
   register,
+  getInfo,
 };

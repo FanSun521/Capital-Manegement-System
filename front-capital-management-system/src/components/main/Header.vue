@@ -8,14 +8,18 @@
       ></SvgIcon>
     </div>
     <div class="right">
-      <el-dropdown trigger="click">
+      <el-dropdown trigger="click" @command="handleCommand">
         <span class="el-dropdown-link">
-          <img class="userPhoto" src="../../assets/imgs/qq头像.jpg" alt="" />
+          <img
+            class="userPhoto"
+            v-lazyLoad="require('@/assets/imgs/qq头像.jpg')"
+            alt=""
+          />
           <span>超级管理员</span>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>个人中心</el-dropdown-item>
-          <el-dropdown-item divided>退出登录</el-dropdown-item>
+          <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div>
@@ -23,6 +27,7 @@
 </template>
 
 <script>
+import Cookies from "js-cookie";
 export default {
   name: "Header",
   props: {},
@@ -30,6 +35,7 @@ export default {
     return {
       //模拟展开折叠的flag
       isCollpse: false,
+      src: "@/assets/imgs/qq头像.jpg",
     };
   },
   computed: {
@@ -42,6 +48,20 @@ export default {
       //切换展开折叠
       this.$bus.$emit("changeCollapse");
       this.isCollpse = !this.isCollpse;
+    },
+    //下拉框事件
+    handleCommand(command) {
+      //退出登录
+      if (command === "logout") {
+        //清除cookie
+        Cookies.remove("token");
+        //清除本地id
+        localStorage.removeItem("id");
+        //跳转登录页
+        this.$router.push({ name: "login" });
+      } else {
+        this.$router.push({ name: "userInfo" });
+      }
     },
   },
 };

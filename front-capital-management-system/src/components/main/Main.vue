@@ -28,4 +28,8 @@ export default {
 .el-header {
   padding: 0;
 }
+.el-main {
+  padding: 10px;
+  background: #f2f3f5;
+}
 </style>
