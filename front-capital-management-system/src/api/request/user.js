@@ -27,8 +27,18 @@ const getInfo = (data) => {
   });
 };
 
+//修改个人信息
+const updateInfo = (data) => {
+  return myAxios({
+    method: "post",
+    url: "/user/updateInfo",
+    data: data,
+  });
+};
+
 export default {
   login,
   register,
   getInfo,
+  updateInfo,
 };

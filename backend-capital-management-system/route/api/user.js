@@ -140,11 +140,18 @@ router.post("/user/updateInfo", (req, res) => {
   });
   str = str.substring(0, str.length - 1);
   const updateSql = `update user set ` + str + ` where id = ${id}`;
+  console.log(updateSql);
   database.query(updateSql, (err, updateRes) => {
+    console.log(updateRes);
     if (updateRes.affectedRows === 1) {
       res.send({
         code: 200,
         message: "信息更新成功!",
+      });
+    } else {
+      res.send({
+        code: 201,
+        message: "更新失败",
       });
     }
   });
