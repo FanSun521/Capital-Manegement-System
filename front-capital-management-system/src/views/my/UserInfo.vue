@@ -55,10 +55,61 @@
       <el-descriptions class="privateTable" title="账户隐私" :column="4" border>
         <el-descriptions-item :label="password.label">
           <div class="private-item">
-            <span>{{ password.display }}</span>
+            <div>
+              <span v-show="editBtnShow">{{ password.display }}</span>
+              <el-form
+                :inline="true"
+                :model="ruleForm"
+                :rules="rules"
+                ref="ruleForm"
+                class="demo-ruleForm"
+                v-show="!editBtnShow"
+              >
+                <el-form-item prop="oldPassword">
+                  <el-input
+                    placeholder="请输入原始密码"
+                    v-model="ruleForm.oldPassword"
+                    clearable
+                    ref="oldInput"
+                  >
+                  </el-input>
+                </el-form-item>
+                <el-form-item prop="newPassword">
+                  <el-input
+                    placeholder="请输入新密码"
+                    v-model="ruleForm.newPassword"
+                    show-password
+                  ></el-input>
+                </el-form-item>
+              </el-form>
+            </div>
             <div class="button-box">
-              <el-button type="primary" icon="el-icon-edit" circle></el-button>
-              <el-button type="success" icon="el-icon-check" circle></el-button>
+              <transition name="right-slide" mode="out-in">
+                <el-button
+                  v-if="editBtnShow"
+                  key="primary"
+                  type="primary"
+                  icon="el-icon-edit"
+                  circle
+                  @click="changePassword"
+                ></el-button>
+                <div v-else>
+                  <el-button
+                    key="info"
+                    type="info"
+                    icon="el-icon-circle-close"
+                    circle
+                    @click="closeChange"
+                  ></el-button>
+                  <el-button
+                    key="success"
+                    type="success"
+                    icon="el-icon-check"
+                    circle
+                    @click="submitPassword"
+                  ></el-button>
+                </div>
+              </transition>
             </div>
           </div>
         </el-descriptions-item>
@@ -69,11 +120,23 @@
       <el-form>
         <el-form-item
           v-for="item in infoLabel"
-          v-if="item.label !== '头像' && item.label !== '部门'"
+          v-if="
+            item.label !== '头像' &&
+            item.label !== '部门' &&
+            item.label !== 'id'
+          "
           :label="item.label"
           :label-width="formLabelWidth"
         >
-          <el-input v-model="item.value" autocomplete="off"></el-input>
+          <el-input
+            v-if="item.label !== '性别'"
+            v-model="item.value"
+            autocomplete="off"
+          ></el-input>
+          <el-select v-else v-model="item.value" placeholder="item.value">
+            <el-option label="男" value="1"></el-option>
+            <el-option label="女" value="0"></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -108,9 +171,42 @@ export default {
         value: "",
       },
       dialogFormVisible: false,
-      formLabelWidth: "120px",
+      formLabelWidth: "180px",
       dialogImageUrl: "",
       copy: null,
+      editBtnShow: true,
+      ruleForm: {
+        oldPassword: "",
+        newPassword: "",
+      },
+      rules: {
+        oldPassword: [
+          {
+            required: true,
+            message: "请输入旧密码",
+            trigger: "blur",
+          },
+          {
+            min: 6,
+            max: 18,
+            message: "长度在 6 到 18 个字符",
+            trigger: "blur",
+          },
+        ],
+        newPassword: [
+          {
+            required: true,
+            message: "请输入新密码",
+            trigger: "blur",
+          },
+          {
+            min: 6,
+            max: 18,
+            message: "长度在 6 到 18 个字符",
+            trigger: "blur",
+          },
+        ],
+      },
     };
   },
   mounted() {
@@ -142,7 +238,6 @@ export default {
       this.infoLabel.forEach((item) => {
         const key = item.key;
         const value = info[key];
-
         //性别 1代表男生
         if (key === "sex") {
           value === 1 ? (item.value = "男") : (item.value = "女");
@@ -164,15 +259,7 @@ export default {
       this.dialogFormVisible = false;
       const data = {};
       this.infoLabel.forEach((item) => {
-        if (item.key === "sex") {
-          if (item.value === "男") {
-            data[item.key] = 1;
-          } else {
-            data[item.key] = 0;
-          }
-        } else {
-          data[item.key] = item.value;
-        }
+        data[item.key] = item.value;
       });
       const res = await this.$http.updateInfo(data);
       if (res.code === 200) {
@@ -180,9 +267,10 @@ export default {
           type: "success",
           message: "修改信息成功!",
         });
+        this.getInfo();
       }
     },
-    //取消修改
+    //取消修改个人信息
     cancelChange() {
       this.dialogFormVisible = false;
       this.$message({
@@ -198,6 +286,46 @@ export default {
         this.$message.error("上传头像图片大小不能超过 2MB!");
       }
       return isLt2M;
+    },
+    //修改个人密码
+    changePassword() {
+      this.editBtnShow = false;
+      //立即获取焦点
+      this.$nextTick(() => {
+        this.$refs.oldInput.focus();
+      });
+    },
+    //取消修改个人密码
+    closeChange() {
+      this.editBtnShow = true;
+      this.$refs["ruleForm"].resetFields();
+      this.$message({
+        type: "info",
+        message: "取消修改",
+      });
+    },
+    //提交修改
+    submitPassword() {
+      this.$refs["ruleForm"].validate((valid) => {
+        if (valid) {
+          this.editBtnShow = true;
+          const data = {};
+          data.oldPassword = this.ruleForm.oldPassword;
+          data.newPassword = this.ruleForm.newPassword;
+          data.id = localStorage.getItem("id");
+          console.log(data, 555);
+          this.$http.updatePassword(data).then((res) => {
+            if (res.code === 200) {
+              this.$message({
+                type: "success",
+                message: "修改成功",
+              });
+            }
+          });
+        } else {
+          return false;
+        }
+      });
     },
   },
 };
@@ -269,11 +397,31 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        :deep .el-input,
+        :deep .el-input__inner {
+          width: 200px;
+          margin-right: 40px;
+        }
+        .el-form-item {
+          margin: 15px 0;
+        }
         .button-box {
-          margin-right: 50px;
+          width: 140px;
+          margin-left: 50px;
         }
       }
+      .right-slide-enter,
+      .right-slide-leave-to {
+        transform: translateX(30px);
+      }
+      .right-slide-enter-active,
+      .right-slide-leave-active {
+        transition: all 0.5s ease;
+      }
     }
+  }
+  :deep .el-input__inner {
+    width: 420px;
   }
 }
 </style>

@@ -35,7 +35,6 @@ export default {
     return {
       //模拟展开折叠的flag
       isCollpse: false,
-      src: "@/assets/imgs/qq头像.jpg",
     };
   },
   computed: {

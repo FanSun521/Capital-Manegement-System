@@ -17,10 +17,9 @@ const lazyLoad = {
   //利用浏览器IntersectionObserver监听el
   observe(el) {
     const io = new IntersectionObserver((entries) => {
-      console.log(entries);
       if (entries[0].isIntersecting) {
         el.src = el.dataset.src;
-        el.removeAttribute("data-src");
+        // el.removeAttribute("data-src");
       }
     });
     io.observe(el);

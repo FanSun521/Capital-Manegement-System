@@ -36,9 +36,18 @@ const updateInfo = (data) => {
   });
 };
 
+//修改个人密码
+const updatePassword = (data) => {
+  return myAxios({
+    method: "post",
+    url: "/user/updatePassword",
+    data: data,
+  });
+};
 export default {
   login,
   register,
   getInfo,
   updateInfo,
+  updatePassword,
 };
