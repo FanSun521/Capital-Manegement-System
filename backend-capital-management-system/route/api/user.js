@@ -168,7 +168,7 @@ router.post("/user/updateInfo", (req, res) => {
  */
 router.post("/user/getEmployee", (req, res) => {
   console.log(req.body);
-  const { pageCurrent = 1, pageSize = 10, department, isPass = 0 } = req.body;
+  const { pageCurrent = 1, pageSize = 10, department, isPass = 1 } = req.body;
   const start = (pageCurrent - 1) * pageSize;
   let querySql;
   if (department) {
