@@ -186,6 +186,15 @@ router.post("/user/getEmployee", (req, res) => {
 });
 
 /**
+ * @api         获取员工数量
+ * @method      {get}
+ * @url         /api/user/getEmployeeCount
+ */
+router.get("/user/getEmployeeCount", (req, res) => {
+  console.log(req);
+});
+
+/**
  * @api         姓名查询员工数据
  * @method      {post}
  * @url         /api/user/byName

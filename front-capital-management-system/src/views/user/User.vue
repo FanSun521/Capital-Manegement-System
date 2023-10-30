@@ -16,6 +16,54 @@
           width="180"
           :fixed="item.fixed"
         >
+          <template slot-scope="scope">
+            <div slot="reference" class="name-wrapper">
+              <!-- 默认列 -->
+              <span
+                v-if="
+                  item.prop !== 'state' &&
+                  item.prop !== 'permission' &&
+                  item.prop !== 'sex'
+                "
+                >{{ scope.row[item.prop] ?? "空" }}</span
+              >
+              <!-- 状态列 -->
+              <el-tag
+                v-else-if="item.prop === 'state'"
+                :type="scope.row[item.prop] === 1 ? 'success' : 'danger'"
+                size="medium"
+                >{{ scope.row[item.prop] === 1 ? "启用" : "禁用" }}</el-tag
+              >
+              <!-- 权限列 -->
+              <el-tag
+                v-else-if="item.prop === 'permission'"
+                :type="
+                  scope.row[item.prop] === 1
+                    ? ''
+                    : scope.row[item.prop] === 2
+                    ? 'success'
+                    : 'warning'
+                "
+                size="medium"
+                effect="dark"
+                >{{
+                  scope.row[item.prop] === 1
+                    ? "超级管理员"
+                    : scope.row[item.prop] === 2
+                    ? "部门管理员"
+                    : "普通打工仔"
+                }}</el-tag
+              >
+              <!-- 性别列 -->
+              <span v-else-if="item.prop === 'sex'">{{
+                scope.row[item.prop] === null
+                  ? "空"
+                  : scope.row[item.prop] === 0
+                  ? "女"
+                  : "男"
+              }}</span>
+            </div>
+          </template>
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="180">
           <template slot-scope="scope">
@@ -24,6 +72,14 @@
           </template>
         </el-table-column>
       </el-table>
+      <el-pagination
+        background
+        :page-sizes="[2, 10, 15, 20]"
+        :page-size="100"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+      >
+      </el-pagination>
     </el-card>
   </div>
 </template>
@@ -63,7 +119,7 @@ export default {
         },
         {
           prop: "state",
-          label: "状态",
+          label: "账号状态",
         },
         {
           prop: "age",
@@ -90,6 +146,7 @@ export default {
       pageCurrent: 1,
       pageSize: 20,
       tableHight: 0,
+      total: 0,
     };
   },
   methods: {
@@ -100,6 +157,7 @@ export default {
       console.log(res);
       if (res.code === 200) {
         this.tableData = res.userList;
+        this.total = this.tableData.length;
       }
     },
   },
