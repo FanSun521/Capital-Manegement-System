@@ -54,6 +54,14 @@ const getEmployee = (data) => {
   });
 };
 
+//获取员工总数
+const getEmployeeCount = () => {
+  return myAxios({
+    method: "get",
+    url: "/user/getEmployeeCount",
+  });
+};
+
 export default {
   login,
   register,
@@ -61,4 +69,5 @@ export default {
   updateInfo,
   updatePassword,
   getEmployee,
+  getEmployeeCount,
 };

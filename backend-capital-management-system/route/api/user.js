@@ -191,7 +191,16 @@ router.post("/user/getEmployee", (req, res) => {
  * @url         /api/user/getEmployeeCount
  */
 router.get("/user/getEmployeeCount", (req, res) => {
-  console.log(req);
+  const querySql = "select count(*) from user where ispass = 1";
+  database.query(querySql, (err, queryRes) => {
+    if (queryRes.length !== 0) {
+      res.send({
+        code: 200,
+        message: "查询成功!",
+        count: queryRes[0]["count(*)"],
+      });
+    }
+  });
 });
 
 /**

@@ -70,7 +70,7 @@ export default {
   data() {
     return {
       loginId: "2021005820",
-      loginPassword: "123456",
+      loginPassword: "88888888",
       direction: "",
       directionOptions: [
         {
