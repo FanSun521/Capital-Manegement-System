@@ -62,6 +62,41 @@ const getEmployeeCount = () => {
   });
 };
 
+//员工姓名搜索
+const getByName = (data) => {
+  return myAxios({
+    method: "post",
+    url: "/user/byName",
+    data: data,
+  });
+};
+
+//员工Id搜索
+const getById = (data) => {
+  return myAxios({
+    method: "post",
+    url: "/user/byId",
+    data: data,
+  });
+};
+
+//员工手机号搜索
+const getByTelephone = (data) => {
+  return myAxios({
+    method: "post",
+    url: "/user/byTelephone",
+    data: data,
+  });
+};
+
+//员工QQ搜索
+const getByQQ = (data) => {
+  return myAxios({
+    method: "post",
+    url: "/user/byQQ",
+    data: data,
+  });
+};
 export default {
   login,
   register,
@@ -70,4 +105,8 @@ export default {
   updatePassword,
   getEmployee,
   getEmployeeCount,
+  getByName,
+  getById,
+  getByTelephone,
+  getByQQ,
 };

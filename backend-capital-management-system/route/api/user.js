@@ -225,6 +225,66 @@ router.post("/user/byName", (req, res) => {
 });
 
 /**
+ * @api         id查询员工数据
+ * @method      {post}
+ * @url         /api/user/byId
+ * @apiParam    {string}  id  学号/学工号等
+ */
+router.post("/user/byId", (req, res) => {
+  const { id } = req.body;
+  console.log(req.body);
+  const querySql = `select * from user where id = ${id}`;
+  database.query(querySql, (err, queryRes) => {
+    res.send({
+      code: 200,
+      data: {
+        user: queryRes,
+      },
+    });
+  });
+});
+
+/**
+ * @api         手机号查询员工数据
+ * @method      {post}
+ * @url         /api/user/byTelephone
+ * @apiParam    {string}  telephone  手机号
+ */
+router.post("/user/byTelephone", (req, res) => {
+  const { telephone } = req.body;
+  console.log(req.body);
+  const querySql = `select * from user where telephone = ${telephone}`;
+  database.query(querySql, (err, queryRes) => {
+    res.send({
+      code: 200,
+      data: {
+        user: queryRes,
+      },
+    });
+  });
+});
+
+/**
+ * @api         QQ号查询员工数据
+ * @method      {post}
+ * @url         /api/user/byQQ
+ * @apiParam    {string}  qq  qq号
+ */
+router.post("/user/byQQ", (req, res) => {
+  console.log(req.body);
+  const { qq } = req.body;
+  const querySql = `select * from user where qq = ${qq}`;
+  database.query(querySql, (err, queryRes) => {
+    res.send({
+      code: 200,
+      data: {
+        user: queryRes,
+      },
+    });
+  });
+});
+
+/**
  * @api         申请资金
  * @method      {post}
  * @url         /api/user/applyFunding

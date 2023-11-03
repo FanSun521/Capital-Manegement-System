@@ -16,22 +16,61 @@
       </div>
       <div class="searchBody">
         <div class="leftSearch">
-          <el-select v-model="selectValue" placeholder="请选择">
-            <el-option
-              v-for="item in options"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value"
+          <template v-if="buttonFlag">
+            <el-select
+              @change="selectHandler"
+              v-model="selectValue"
+              placeholder="请选择搜索项"
             >
-            </el-option>
-          </el-select>
-          <el-input
-            size="small"
-            placeholder="姓名搜索"
-            v-model="searchName"
-            clearable
-          >
-          </el-input>
+              <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+            <el-input
+              v-show="isSearch"
+              size="small"
+              :placeholder="searchTip"
+              v-model="searchVal"
+            >
+            </el-input>
+          </template>
+          <template v-else>
+            <el-select v-model="selectDepartment" placeholder="请选择部门">
+              <el-option
+                v-for="item in departmentOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+            <el-select v-model="selectState" placeholder="请选择账号状态">
+              <el-option
+                v-for="item in stateOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              >
+              </el-option>
+            </el-select>
+          </template>
+        </div>
+        <div class="rightSearch">
+          <el-button
+            type="primary"
+            size="middle"
+            icon="el-icon-search"
+            @click="searchHandler"
+          ></el-button>
+          <el-button
+            size="middle"
+            icon="el-icon-refresh"
+            @click="refreshHandler"
+          ></el-button>
         </div>
       </div>
     </el-card>
@@ -109,7 +148,7 @@
       <el-pagination
         background
         :page-sizes="[5, 10, 15, 20]"
-        :page-size="100"
+        :page-size="pageSize"
         layout="->,total, sizes, prev, pager, next, jumper"
         :total="total"
         @current-change="handleCurrentChange"
@@ -190,26 +229,53 @@ export default {
       pageSize: 10,
       total: 0,
       tableHeight: 0,
-      searchName: "",
-      searchID: "",
+      searchVal: "",
       buttonFlag: true,
       selectValue: "",
+      isSearch: false,
+      searchTip: "",
+      selectDepartment: "",
+      departmentOptions: [
+        {
+          value: "设计",
+          label: "设计",
+        },
+        {
+          value: "秘书处",
+          label: "秘书处",
+        },
+        {
+          value: "开发",
+          label: "开发",
+        },
+      ],
+      selectState: "",
+      stateOptions: [
+        {
+          value: "1",
+          label: "启用",
+        },
+        {
+          value: "0",
+          label: "禁用",
+        },
+      ],
       options: [
         {
-          value: "选项1",
+          value: "请输入ID",
           label: "ID搜索",
         },
         {
-          value: "选项2",
+          value: "请输入姓名",
           label: "姓名搜索",
         },
         {
-          value: "选项4",
+          value: "请输入手机号",
           label: "手机号搜索",
         },
         {
-          value: "选项5",
-          label: "qq号搜索",
+          value: "请输入QQ号",
+          label: "QQ号搜索",
         },
       ],
     };
@@ -253,6 +319,75 @@ export default {
     filterHandler() {
       this.buttonFlag = false;
     },
+    //选择精准搜索项
+    selectHandler(val) {
+      this.isSearch = true;
+      this.searchTip = val;
+    },
+    //清空搜索项
+    refreshHandler() {
+      this.searchVal = "";
+      this.selectDepartment = "";
+      this.selectState = "";
+      this.selectValue = "";
+      this.searchTip = "";
+      this.isSearch = false;
+      this.getEmployee();
+    },
+    //搜索
+    async searchHandler() {
+      //精准搜索
+      if (this.buttonFlag) {
+        if (this.searchTip && this.searchVal === "") {
+          this.$message({
+            type: "warning",
+            message: this.searchTip,
+          });
+          return;
+        }
+        let res;
+        switch (this.searchTip) {
+          case "请输入ID":
+            res = await this.$http.getById({ id: this.searchVal });
+            break;
+          case "请输入姓名":
+            res = await this.$http.getByName({ userName: this.searchVal });
+            break;
+          case "请输入手机号":
+            res = await this.$http.getByTelephone({
+              telephone: this.searchVal,
+            });
+            break;
+          case "请输入QQ号":
+            res = await this.$http.getByQQ({ qq: this.searchVal });
+            break;
+          default:
+            this.$message({
+              type: "warning",
+              message: "请选择搜索项",
+            });
+            break;
+        }
+        if (res && res.code === 200) {
+          this.tableData = res.data.user;
+          this.$message({
+            type: "success",
+            message: "查询成功",
+          });
+        }
+      } else {
+        //筛选搜搜
+        if (this.selectDepartment === "" && this.selectState === "") {
+          this.$message({
+            type: "warning",
+            message: "请选择部门或帐号状态",
+          });
+        } else {
+          console.log(this.selectDepartment);
+          console.log(this.selectState);
+        }
+      }
+    },
   },
 };
 </script>
@@ -283,17 +418,22 @@ export default {
     .searchBody {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       height: 60px;
       background-color: #fafafa;
       margin-top: 10px;
       .leftSearch {
         display: flex;
+        margin-left: 20px;
         :deep .el-input,
         :deep .el-input__inner {
           width: 250px;
           height: 40px;
           margin-right: 40px;
         }
+      }
+      .rightSearch {
+        margin-right: 20px;
       }
     }
   }
