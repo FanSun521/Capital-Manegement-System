@@ -6,6 +6,7 @@ const database = mysql.createPool({
   password: "fanyang1314...",
   port: 3306,
   database: "capital_management",
+  multipleStatements: true //开启多条查询语句
 });
 
 module.exports = database;

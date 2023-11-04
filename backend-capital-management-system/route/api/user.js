@@ -165,41 +165,41 @@ router.post("/user/updateInfo", (req, res) => {
  * @apiParam    {number}  pageSize  页大小
  * @apiParam    {department}    部门
  * @apiParam    {isPass}    是否通过
+ * @apiParam    {number}  state  账号状态
+ *
  */
 router.post("/user/getEmployee", (req, res) => {
   console.log(req.body);
-  const { pageCurrent = 1, pageSize = 10, department, isPass = 1 } = req.body;
+  const {
+    pageCurrent = 1,
+    pageSize = 10,
+    department,
+    isPass = 1,
+    state,
+  } = req.body;
   const start = (pageCurrent - 1) * pageSize;
   let querySql;
-  if (department) {
-    querySql = `select * from user where  department = '${department}' and isPass = ${isPass} limit ${start} , ${pageSize}`;
+  let countSql;
+  if (department && !state) {
+    querySql = `select * from user where  department = '${department}' and isPass = ${isPass} limit ${start} , ${pageSize};`;
+    countSql = `select count(*) as count from user where department = '${department}' and isPass = ${isPass};`;
+  } else if (state && !department) {
+    querySql = `select * from user where  state = '${state}' and isPass = ${isPass} limit ${start} , ${pageSize};`;
+    countSql = `select count(*) as count from user where state = '${state}' and isPass = ${isPass};`;
+  } else if (state && department) {
+    querySql = `select * from user where  state = '${state}' and  department = '${department}' and isPass = ${isPass} limit ${start} , ${pageSize};`;
+    countSql = `select count(*) as count from user where state = '${state}' and  department = '${department}' and isPass = ${isPass};`;
   } else {
-    querySql = `select * from user where isPass = ${isPass} limit ${start} , ${pageSize}`;
+    querySql = `select * from user where isPass = ${isPass} limit ${start} , ${pageSize};`;
+    countSql = `select count(*) as count from user where isPass = ${isPass};`;
   }
-  database.query(querySql, (err, queryRes) => {
+  database.query(querySql + countSql, (err, queryRes) => {
     res.send({
       code: 200,
       message: "查询成功!",
-      userList: queryRes,
+      userList: queryRes[0],
+      count: queryRes[1][0].count,
     });
-  });
-});
-
-/**
- * @api         获取员工数量
- * @method      {get}
- * @url         /api/user/getEmployeeCount
- */
-router.get("/user/getEmployeeCount", (req, res) => {
-  const querySql = "select count(*) from user where ispass = 1";
-  database.query(querySql, (err, queryRes) => {
-    if (queryRes.length !== 0) {
-      res.send({
-        code: 200,
-        message: "查询成功!",
-        count: queryRes[0]["count(*)"],
-      });
-    }
   });
 });
 
@@ -212,13 +212,14 @@ router.get("/user/getEmployeeCount", (req, res) => {
 router.post("/user/byName", (req, res) => {
   const { userName } = req.body;
   console.log(req.body);
-  const querySql = `select * from user where name  = '${userName}' `;
+  const querySql = `select * from user where name  = '${userName}' and ispass = 1;select count(*) as count from user where name  = '${userName}' and ispass = 1`;
   database.query(querySql, (err, queryRes) => {
     res.send({
       code: 200,
       message: "查询成功!",
       data: {
-        user: queryRes,
+        user: queryRes[0],
+        count: queryRes[1][0].count,
       },
     });
   });
@@ -233,12 +234,13 @@ router.post("/user/byName", (req, res) => {
 router.post("/user/byId", (req, res) => {
   const { id } = req.body;
   console.log(req.body);
-  const querySql = `select * from user where id = ${id}`;
+  const querySql = `select * from user where id = ${id} and ispass = 1;select count(*) as count from user where id = ${id} and ispass = 1`;
   database.query(querySql, (err, queryRes) => {
     res.send({
       code: 200,
       data: {
-        user: queryRes,
+        user: queryRes[0],
+        count: queryRes[1][0].count,
       },
     });
   });
@@ -253,12 +255,13 @@ router.post("/user/byId", (req, res) => {
 router.post("/user/byTelephone", (req, res) => {
   const { telephone } = req.body;
   console.log(req.body);
-  const querySql = `select * from user where telephone = ${telephone}`;
+  const querySql = `select * from user where telephone = ${telephone} and ispass = 1;select count(*) as count from user where telephone = ${telephone} and ispass = 1`;
   database.query(querySql, (err, queryRes) => {
     res.send({
       code: 200,
       data: {
-        user: queryRes,
+        user: queryRes[0],
+        count: queryRes[1][0].count,
       },
     });
   });
@@ -273,12 +276,13 @@ router.post("/user/byTelephone", (req, res) => {
 router.post("/user/byQQ", (req, res) => {
   console.log(req.body);
   const { qq } = req.body;
-  const querySql = `select * from user where qq = ${qq}`;
+  const querySql = `select * from user where qq = ${qq} and ispass = 1;select count(*) as count from user where qq = ${qq} and ispass = 1;`;
   database.query(querySql, (err, queryRes) => {
     res.send({
       code: 200,
       data: {
-        user: queryRes,
+        user: queryRes[0],
+        count: queryRes[1][0].count,
       },
     });
   });

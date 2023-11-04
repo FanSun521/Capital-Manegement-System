@@ -9,7 +9,11 @@
       <SvgIcon icon-class="zijin"></SvgIcon>
       <h3 v-show="!isCollapse">资金管理系统</h3>
     </a>
-    <el-submenu v-for="(firstMenu, firIndex) in menu" :index="'' + firIndex">
+    <el-submenu
+      v-for="(firstMenu, firIndex) in menu"
+      :key="firstMenu.label"
+      :index="'' + firIndex"
+    >
       <template slot="title" class="firstMenu">
         <SvgIcon :icon-class="firstMenu.icon"></SvgIcon>
         <span>{{ firstMenu.label }}</span>
@@ -19,6 +23,7 @@
           v-for="(secMenu, secIndex) in firstMenu.children"
           :index="'' + firIndex + '-' + secIndex"
           @click="goNav(secMenu.name, firIndex, secIndex)"
+          :key="secMenu.label"
         >
           <SvgIcon :icon-class="secMenu.icon"></SvgIcon>
           <span>{{ secMenu.label }}</span>

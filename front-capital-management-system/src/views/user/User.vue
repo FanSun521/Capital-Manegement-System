@@ -175,8 +175,6 @@ export default {
     this.$nextTick(() => {
       this.tableHeight = this.$refs.usersCard.$el.offsetHeight - 100;
     });
-    //获取员工数量
-    this.getEmployeeCount();
   },
   data() {
     return {
@@ -282,34 +280,43 @@ export default {
   },
   methods: {
     //获取员工信息
-    async getEmployee(pageCurrent, pageSize) {
+    async getEmployee(pageCurrent, pageSize, department, state) {
       const data = {
         pageCurrent: pageCurrent ?? this.pageCurrent,
         pageSize: pageSize ?? this.pageSize,
       };
+      if (department) {
+        data.department = department;
+      }
+      if (state) {
+        data.state = state;
+      }
       const res = await this.$http.getEmployee(data);
       console.log(res);
       if (res.code === 200) {
         this.tableData = res.userList;
-      }
-    },
-    //获取员工数量
-    async getEmployeeCount() {
-      const res = await this.$http.getEmployeeCount();
-      console.log(res);
-      if (res.code === 200) {
         this.total = res.count;
       }
     },
     //页数变化处理
     handleCurrentChange(pageCurrent) {
       this.pageCurrent = pageCurrent;
-      this.getEmployee(pageCurrent, this.pageSize);
+      this.getEmployee(
+        pageCurrent,
+        this.pageSize,
+        this.selectDepartment,
+        this.selectState
+      );
     },
     //每页数量发生变化处理
     handleSizeChange(pageSize) {
       this.pageSize = pageSize;
-      this.getEmployee(this.pageCurrent, pageSize);
+      this.getEmployee(
+        this.pageCurrent,
+        pageSize,
+        this.selectDepartment,
+        this.selectState
+      );
     },
     //切换精准搜索
     accurateHandler() {
@@ -332,6 +339,8 @@ export default {
       this.selectValue = "";
       this.searchTip = "";
       this.isSearch = false;
+      this.pageCurrent = 1;
+      this.pageSize = 10;
       this.getEmployee();
     },
     //搜索
@@ -370,6 +379,7 @@ export default {
         }
         if (res && res.code === 200) {
           this.tableData = res.data.user;
+          this.total = res.data.count;
           this.$message({
             type: "success",
             message: "查询成功",
@@ -383,8 +393,13 @@ export default {
             message: "请选择部门或帐号状态",
           });
         } else {
-          console.log(this.selectDepartment);
-          console.log(this.selectState);
+          this.pageCurrent = 1;
+          this.pageSize = 10;
+          this.getEmployee(1, 10, this.selectDepartment, this.selectState);
+          this.$message({
+            type: "success",
+            message: "查询成功",
+          });
         }
       }
     },

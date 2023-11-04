@@ -125,6 +125,7 @@
             item.label !== '部门' &&
             item.label !== 'id'
           "
+          :key="item.key"
           :label="item.label"
           :label-width="formLabelWidth"
         >
