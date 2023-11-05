@@ -54,8 +54,9 @@ export default {
       if (command === "logout") {
         //清除cookie
         Cookies.remove("token");
-        //清除本地id
+        //清除本地id、permission
         localStorage.removeItem("id");
+        localStorage.removeItem("permission");
         //跳转登录页
         this.$router.push({ name: "login" });
       } else {

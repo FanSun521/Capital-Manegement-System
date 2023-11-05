@@ -140,8 +140,16 @@
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="180">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" plain>编辑</el-button>
-            <el-button size="mini" type="danger" plain>删除</el-button>
+            <el-button size="mini" type="primary" plain @click="editUser(scope)"
+              >编辑</el-button
+            >
+            <el-button
+              size="mini"
+              type="danger"
+              plain
+              @click="deleteUser(scope)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -157,24 +165,72 @@
       >
       </el-pagination>
     </el-card>
+    <el-dialog title="员工操作" :visible.sync="editFormVisible" width="30%">
+      <el-form :model="editFrom">
+        <el-form-item
+          v-if="userPermission <= 2"
+          label="账号状态"
+          :label-width="editFormLabelWidth"
+        >
+          <el-select v-model="editFrom.state" placeholder="请选择账号状态">
+            <el-option label="启用" :value="1"></el-option>
+            <el-option label="禁用" :value="0"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          v-if="userPermission === 1"
+          label="部门"
+          :label-width="editFormLabelWidth"
+        >
+          <el-select v-model="editFrom.department" placeholder="请选择部门">
+            <el-option label="设计" value="设计"></el-option>
+            <el-option label="秘书处" value="秘书处"></el-option>
+            <el-option label="开发" value="开发"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item
+          v-if="userPermission === 1"
+          label="权限"
+          :label-width="editFormLabelWidth"
+        >
+          <el-select v-model="editFrom.permission" placeholder="请选择权限">
+            <el-option label="超级管理员" :value="1"></el-option>
+            <el-option label="部门管理员" :value="2"></el-option>
+            <el-option label="普通打工仔" :value="3"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="cancelHandler">取 消</el-button>
+        <el-button type="primary" @click="editHandler">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import throttle from "@/utils/throttle";
 export default {
   name: "User",
   props: {},
   mounted() {
     //监听浏览器窗口变化 更改table高度
-    window.onresize = () => {
-      this.tableHeight = this.$refs.usersCard.$el.offsetHeight - 100;
-    };
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        this.$nextTick(() => {
+          this.tableHeight = this.$refs.usersCard.$el.offsetHeight - 100;
+        });
+      }, 1)
+    );
     //获取员工信息
     this.getEmployee();
     //table表格自适应高度
     this.$nextTick(() => {
       this.tableHeight = this.$refs.usersCard.$el.offsetHeight - 100;
     });
+    //用户权限
+    this.userPermission = Number(localStorage.getItem("permission"));
   },
   data() {
     return {
@@ -276,6 +332,15 @@ export default {
           label: "QQ号搜索",
         },
       ],
+      editFormVisible: false,
+      editFrom: {
+        state: "",
+        department: "",
+        permission: "",
+        id: "",
+      },
+      editFormLabelWidth: "120px",
+      userPermission: "",
     };
   },
   methods: {
@@ -402,6 +467,66 @@ export default {
           });
         }
       }
+    },
+    //员工编辑按钮
+    editUser(scope) {
+      this.editFormVisible = true;
+      this.editFrom.state = scope.row.state;
+      this.editFrom.department = scope.row.department;
+      this.editFrom.permission = scope.row.permission;
+      this.editFrom.id = scope.row.id;
+    },
+    //取消修改员工
+    cancelHandler() {
+      this.editFormVisible = false;
+      this.$message({
+        type: "info",
+        message: "取消编辑",
+      });
+    },
+    //修改员工信息
+    async editHandler() {
+      this.editFormVisible = false;
+      const data = { id: this.editFrom.id };
+      if (this.userPermission === 1) {
+        data.state = this.editFrom.state;
+        data.department = this.editFrom.department;
+        data.permission = this.editFrom.permission;
+      } else if (this.userPermission === 2) {
+        data.state = this.state;
+      }
+      const res = await this.$http.updateInfo(data);
+      if (res.code === 200) {
+        this.getEmployee();
+        this.$message({
+          type: "success",
+          message: "修改成功",
+        });
+      }
+    },
+    //删除员工按钮
+    deleteUser({ row: { id } }) {
+      this.$confirm("此操作将永久删除该员工, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(async () => {
+          const res = await this.$http.deleteUser({ id: id });
+          if (res.code === 200) {
+            this.$message({
+              type: "success",
+              message: "删除成功!",
+            });
+            this.getEmployee();
+          }
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除",
+          });
+        });
     },
   },
 };

@@ -54,7 +54,7 @@ router.post("/login", (req, res) => {
   console.log(req.body);
   // 查询数据库 id是否存在
   database.query(
-    `select password from user where id = ${id}`,
+    `select password,permission from user where id = ${id}`,
     (err, queryRes) => {
       //id存在
       if (queryRes.length !== 0) {
@@ -68,6 +68,7 @@ router.post("/login", (req, res) => {
               data: {
                 token,
                 id,
+                permission: queryRes[0].permission,
               },
             });
           });

@@ -1,2 +1,12 @@
 import myAxios from "../index";
-export default {};
+
+//删除员工
+const deleteUser = (data) => {
+  return myAxios({
+    method: "post",
+    url: "/superAdmin/deleteUser",
+    data: data,
+  });
+};
+
+export default { deleteUser };

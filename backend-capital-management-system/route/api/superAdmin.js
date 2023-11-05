@@ -32,6 +32,26 @@ router.post("/superAdmin/setAssets", (req, res) => {
 });
 
 /**
+ * @api         删除员工
+ * @method      {post}
+ * @url         /api/superAdmin/deleteUser
+ * @apiParam    {string}  id  学号/学工号等
+ */
+router.post("/superAdmin/deleteUser", (req, res) => {
+  console.log(req.body);
+  const { id } = req.body;
+  const deleteSql = `delete from user where id = ${id}`;
+  database.query(deleteSql, (err, deleteRes) => {
+    if (deleteRes.affectedRows === 1) {
+      res.send({
+        code: 200,
+        message: "删除成功!",
+      });
+    }
+  });
+});
+
+/**
  * @api         权限管理：编辑权限
  * @method      {post}
  * @url         /api/superAdmin/setPermission

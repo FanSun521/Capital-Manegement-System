@@ -4,25 +4,7 @@ const database = require("../../database/database");
 // 引入 multiparty
 const multiparty = require("multiparty");
 
-/**
- * @api         删除员工
- * @method      {post}
- * @url         /api/admin/deleteUser
- * @apiParam    {string}  id  学号/学工号等
- */
-router.post("/admin/deleteUser", (req, res) => {
-  console.log(req.body);
-  const { id } = req.body;
-  const deleteSql = `delete from user where id = ${id}`;
-  database.query(deleteSql, (err, deleteRes) => {
-    if (deleteRes.affectedRows === 1) {
-      res.send({
-        code: 200,
-        message: "删除成功!",
-      });
-    }
-  });
-});
+
 
 /**
  * @api         批量通过用户注册

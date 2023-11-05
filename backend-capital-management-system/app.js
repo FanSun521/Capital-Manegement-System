@@ -64,7 +64,13 @@ app.get("/", (req, res) => {
 app.use("/api", userRouter);
 app.use("/api", adminRouter);
 app.use("/api", superAdminRouter);
-
+//错误中间件
+app.use((err, req, res, next) => {
+  res.send({
+    code: 500,
+    error: err.message,
+  });
+});
 const port = 9000;
 
 app.listen(port, () => {

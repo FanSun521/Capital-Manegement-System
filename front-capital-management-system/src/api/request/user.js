@@ -97,6 +97,7 @@ const getByQQ = (data) => {
     data: data,
   });
 };
+
 export default {
   login,
   register,
